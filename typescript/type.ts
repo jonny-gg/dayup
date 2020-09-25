@@ -208,3 +208,105 @@ department = new ChildDepartment(); // 允许对一个抽象子类进行实例�
 department.printMeeting();
 department.printName();
 // department.printMeeting2(); // 方法再抽象类中不存在
+
+// 类型推断 -- 上下文归类
+let myAdd: (baseValue: number, increment: number) => number = function (x, y) {
+  return x + y;
+};
+
+let employeeName = function (first: string, ...last: string[]) {
+  return first + "" + last.join("");
+};
+
+console.log(employeeName("123"));
+
+// 回调函数里的this参数
+interface UIElement {
+  addClickListener(onclick: (this: void, e: ErrorEvent) => void): void;
+}
+class uiElement implements UIElement {
+  addClickListener(onclick: (this: void, e: ErrorEvent) => void): void {
+    throw new Error("Method not implemented.");
+  }
+}
+
+class Handler {
+  info: string;
+  onClickBad(e: ErrorEvent) {
+    this.info = e.message;
+  }
+}
+let h = new Handler();
+let ui = new uiElement();
+// ui.addClickListener(h.onClickBad(new ErrorEvent("123"));
+
+// 泛型
+function loggingIdentity<T>(arg: Array<T>): Array<T> {
+  console.log(arg.length);
+  return arg;
+}
+
+interface GenericIdentityFn<T> {
+  <T>(arg: Array<T>): Array<T>;
+}
+
+let myLoggingIdentity: GenericIdentityFn<string> = loggingIdentity;
+
+interface Lengthwise {
+  length: number;
+}
+// 泛型类
+class GenericNumber<T extends Lengthwise> {
+  zero: T;
+  add: (x: T, y: T) => T;
+}
+
+let gnum = new GenericNumber<string>();
+gnum.zero = "2";
+gnum.add = (x, y) => {
+  return x + y;
+};
+console.log(gnum.zero, gnum.add("2", "3"));
+
+// 泛型约束
+const getProperty = <T, K extends keyof T>(obj: T, key: K) => obj[key];
+
+let x = { a: 1, b: 2, c: 3, d: 4 };
+
+getProperty(x, "a");
+// getProperty(x, "m"); // 没有m属性，typescript类型检查报错
+
+// 在泛型里使用类类型
+class BeeKeeper {
+  hasMask: boolean;
+}
+
+class ZooKeeper {
+  nametag: string;
+}
+
+class Animal {
+  numLegs: number;
+}
+
+class Bee extends Animal {
+  keeper: BeeKeeper;
+}
+
+class Lion extends Animal {
+  keeper: ZooKeeper;
+}
+const createInstance = <A extends Animal>(c: new () => A): A => new c();
+// createInstance(Lion).keeper.nametag;
+
+// 枚举
+enum FileAccess {
+  None,
+  Read = 1 << 1,
+  Write = 1 << 4,
+  ReadWrite = Read | Write,
+  G = "123".length,
+}
+
+console.log(FileAccess.Read)
+console.log(FileAccess.Write)
