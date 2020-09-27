@@ -39,7 +39,7 @@
 
     
 
-  ![image-20200917204823937](/Users/jonny/Library/Application Support/typora-user-images/image-20200917204823937.png)
+  ![image-20200917204823937](data.png)
 
 * 访问http://localhost:3000 ，你就可以访问grafana的服务了，默认账号和密码是：`admin` 和  `admin`
 
