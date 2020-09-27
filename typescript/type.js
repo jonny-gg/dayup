@@ -157,6 +157,104 @@ var ChildDepartment = /** @class */ (function (_super) {
 }(Department));
 var department; // 允许创建一个对抽象类型的引用
 // department = new Department(); // 错误: 不能创建一个抽象类的实例
-department = new ChildDepartment();
+department = new ChildDepartment(); // 允许对一个抽象子类进行实例化和赋值
 department.printMeeting();
 department.printName();
+// department.printMeeting2(); // 方法再抽象类中不存在
+// 类型推断 -- 上下文归类
+var myAdd = function (x, y) {
+    return x + y;
+};
+var employeeName = function (first) {
+    var last = [];
+    for (var _i = 1; _i < arguments.length; _i++) {
+        last[_i - 1] = arguments[_i];
+    }
+    return first + "" + last.join("");
+};
+console.log(employeeName("123"));
+var uiElement = /** @class */ (function () {
+    function uiElement() {
+    }
+    uiElement.prototype.addClickListener = function (onclick) {
+        throw new Error("Method not implemented.");
+    };
+    return uiElement;
+}());
+var Handler = /** @class */ (function () {
+    function Handler() {
+    }
+    Handler.prototype.onClickBad = function (e) {
+        this.info = e.message;
+    };
+    return Handler;
+}());
+var h = new Handler();
+var ui = new uiElement();
+// ui.addClickListener(h.onClickBad(new ErrorEvent("123"));
+// 泛型
+function loggingIdentity(arg) {
+    console.log(arg.length);
+    return arg;
+}
+var myLoggingIdentity = loggingIdentity;
+// 泛型类
+var GenericNumber = /** @class */ (function () {
+    function GenericNumber() {
+    }
+    return GenericNumber;
+}());
+var gnum = new GenericNumber();
+gnum.zero = "2";
+gnum.add = function (x, y) {
+    return x + y;
+};
+console.log(gnum.zero, gnum.add("2", "3"));
+// 泛型约束
+var getProperty = function (obj, key) { return obj[key]; };
+var x = { a: 1, b: 2, c: 3, d: 4 };
+getProperty(x, "a");
+// getProperty(x, "m"); // 没有m属性，typescript类型检查报错
+// 在泛型里使用类类型
+var BeeKeeper = /** @class */ (function () {
+    function BeeKeeper() {
+    }
+    return BeeKeeper;
+}());
+var ZooKeeper = /** @class */ (function () {
+    function ZooKeeper() {
+    }
+    return ZooKeeper;
+}());
+var Animal = /** @class */ (function () {
+    function Animal() {
+    }
+    return Animal;
+}());
+var Bee = /** @class */ (function (_super) {
+    __extends(Bee, _super);
+    function Bee() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    return Bee;
+}(Animal));
+var Lion = /** @class */ (function (_super) {
+    __extends(Lion, _super);
+    function Lion() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    return Lion;
+}(Animal));
+var createInstance = function (c) { return new c(); };
+// createInstance(Lion).keeper.nametag;
+// 枚举
+var FileAccess;
+(function (FileAccess) {
+    FileAccess[FileAccess["None"] = 0] = "None";
+    FileAccess[FileAccess["Read"] = 2] = "Read";
+    FileAccess[FileAccess["Write"] = 16] = "Write";
+    FileAccess[FileAccess["ReadWrite"] = 18] = "ReadWrite";
+    FileAccess[FileAccess["G"] = "123".length] = "G";
+})(FileAccess || (FileAccess = {}));
+console.log(FileAccess.Read);
+console.log(FileAccess.Write);

@@ -55,56 +55,67 @@ var globalProperties = [
 
 let current;
 
-var queue = []
+var queue = [];
 
 for (const p of globalProperties) {
   queue.push({
     path: [p],
-    object: this[p]
-  })
+    object: this[p],
+  });
   //  console.log(this,p,this[p])
 }
 
 while (queue.length) {
   current = queue.shift();
-  if (set.has(current.object))
-    continue;
-  console.log(current.path.join('.'))
-  set.add(current.object)
+  if (set.has(current.object)) continue;
+  console.log(current.path.join("."));
+  set.add(current.object);
   // console.log(current.object,"current");
-  var proto = Object.getPrototypeOf(current.object)
+  var proto = Object.getPrototypeOf(current.object);
 
   if (proto) {
     queue.push({
       path: current.path.concat(["__proto__"]),
-      object: proto
-    })
+      object: proto,
+    });
   }
   for (let p of Object.getOwnPropertyNames(current.object)) {
     var property = Object.getOwnPropertyDescriptor(current.object, p);
 
-    if (property.hasOwnProperty("value")
-      && ((property.value != null) && (typeof property.value == 'object') || (typeof property.value == "object"))
-      && property.value instanceof Object) {
+    if (
+      property.hasOwnProperty("value") &&
+      ((property.value != null && typeof property.value == "object") ||
+        typeof property.value == "object") &&
+      property.value instanceof Object
+    ) {
       queue.push({
         path: current.path.concat([p]),
-        object: property.value
-      })
+        object: property.value,
+      });
     }
     if (property.hasOwnProperty("get") && typeof property.get == "function") {
       debugger;
       queue.push({
         path: current.path.concat([p]),
-        object: property.get
-      })
+        object: property.get,
+      });
     }
-    if (property.hasOwnProperty('set') && typeof property.set == "function") {
+    if (property.hasOwnProperty("set") && typeof property.set == "function") {
       // debugger;
       queue.push({
         path: current.path.concat([p]),
-        object: property.set
-      })
+        object: property.set,
+      });
     }
   }
 }
 
+class C {
+  constructor() {
+    /** @type {number | undefined} */
+    this.prop = undefined;
+  }
+}
+let c = new C();
+c.prop = 0;
+c.prop = "string";
