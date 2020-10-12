@@ -68,8 +68,11 @@ ${this.bodyText}`;
          * 因为TCP(data)是一个流数据，所以断在哪里是无所谓的
          */
         parser.receive(data.toString());
-        console.log(parser.statusLine);
-        console.log(parser.headers);
+        if (parser.isFinished) {
+          console.log(parser.response);
+        }
+        // console.log(parser.statusLine);
+        // console.log(parser.headers);
         // resolve(data.toString());
         connection.end();
       });
@@ -102,6 +105,19 @@ class ResponseParser {
     this.headerName = "";
     this.headerValue = "";
     this.bodyParser = null;
+  }
+
+  get isFinished() {
+    return this.bodyParser && this.bodyParser.isFinish;
+  }
+  get response() {
+    this.statusLine.match(/HTTP\/1.1 ([0-9]+) ([\s\S]+)/);
+    return {
+      statusCode: RegExp.$1,
+      statusText: RegExp.$2,
+      headers: this.headers,
+      body: this.bodyParser.content.join(""),
+    };
   }
   // 字符流的处理
   receive(string) {
@@ -168,7 +184,7 @@ class TrunkedBodyParser {
     this.READING_TRUNK = 2;
     this.WAITING_NEW_LINE = 3;
     this.WAITING_NEW_LINE_END = 4;
-    this.isFinish = false
+    this.isFinish = false;
     this.length = 0;
     this.content = [];
 
@@ -178,12 +194,11 @@ class TrunkedBodyParser {
     // console.log(JSON.stringify(char))
     if (this.current === this.WAITING_LENGTH) {
       if (char === "\r") {
-        if (this.length ===0){
-          console.log(this.content)
-          this.isFinish = true
+        if (this.length === 0) {
+          // console.log(this.content);
+          this.isFinish = true;
         }
         this.current = this.WAITING_LENGTH_LINE_END;
-        
       } else {
         this.length *= 10;
         this.length += char.charCodeAt(0) - "0".charCodeAt(0);
@@ -223,5 +238,5 @@ void (async function () {
     },
   });
   let response = await request.send();
-  console.log(response.toString());
+  console.log(response);
 })();
