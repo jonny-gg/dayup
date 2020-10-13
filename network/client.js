@@ -1,6 +1,16 @@
 /**
  * 简易浏览器客户端
  */
+
+
+/**
+ * 头部格式
+ * POST / HTTP/1.1 
+ * Host: 127.0.0.1
+ * Content-Type: application/x-www-form-urlencoded
+ * 
+ * name=jonny
+ */
 const net = require("net");
 class Request {
   // method + url + port + path
@@ -49,6 +59,7 @@ ${this.bodyText}`;
     return new Promise((resolve, reject) => {
       const parser = new ResponseParser();
       if (!connection) {
+        // 如果没有客户端连接就新建一个
         connection = net.createConnection(
           {
             host: this.host,
@@ -61,6 +72,7 @@ ${this.bodyText}`;
       } else {
         connection.write(this.toString());
       }
+      // 接收到数据触发的事件可能是 Buffer / String
       connection.on("data", (data) => {
         /**
          * 会分多次发data 沾包问题
@@ -125,14 +137,12 @@ class ResponseParser {
       this.receiveChar(string.charAt(i));
     }
   }
-  //
+  // 每个字符串做解析
   receiveChar(char) {
     // statusLine
     if (this.current === this.WAITING_STATUS_LINE) {
       if (char === "\r") {
         this.current = this.WAITING_STATUS_LINE_END;
-      } else if (char === "\n") {
-        this.current = this.WAITING_HEADER_NAME;
       } else {
         this.statusLine += char;
       }
