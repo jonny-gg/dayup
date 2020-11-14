@@ -1,12 +1,11 @@
 // 通过自定义状态机解析html各标签，进而了解浏览器解析原理
-const EOF = Symbol("EOF");
 let currentToken = null;
 let currentAttribute = null;
+let currentTextNode = null;
 
 let stack = [{ type: "document", children: [] }];
 
 function emit(token) {
-  if (token.type == "text") return;
   let top = stack[stack.length - 1];
   if (token.type == "startTag") {
     let element = {
@@ -33,8 +32,18 @@ function emit(token) {
       stack.pop();
     }
     currentTextNode = null;
+  } else if (token.type == "text") {
+    if (currentTextNode == null) {
+      currentTextNode = {
+        type: "text",
+        content: "",
+      };
+      top.children.push(currentTextNode);
+    }
+    currentTextNode.content += token.content;
   }
 }
+const EOF = Symbol("EOF");
 
 function data(c) {
   if (c === "<") {
@@ -48,7 +57,7 @@ function data(c) {
   }
 }
 function tagOpen(c) {
-  if (c.match(/^[0-9a-zA-Z]$/)) {
+  if (c.match(/^[a-zA-Z]$/)) {
     currentToken = {
       type: "startTag",
       tagName: "",
@@ -66,23 +75,28 @@ function tagName(c) {
     return beforeAttributeName;
   } else if (c == "/") {
     return selfClosingStartTag;
-  } else if (c.match(/^[/0-9a-zA-Z]$/)) {
+  } else if (c.match(/^[/A-Z]$/)) {
     currentToken.tagName += c;
     return tagName;
   } else if (c == ">") {
     emit(currentToken);
     return data;
+  } else {
+    currentToken.tagName += c;
+    return tagName;
   }
 }
 function endTagOpen(c) {
-  if (c === ">") {
-    // return tagOpen;
-  } else if (c.match(/^[0-9a-zA-Z]$/)) {
+  if (c.match(/^[a-zA-Z]$/)) {
     currentToken = {
       type: "endTag",
       tagName: "",
     };
     return tagName(c);
+  } else if (c === ">") {
+    // return tagOpen;
+  } else if (c == EOF) {
+  } else {
   }
 }
 
@@ -104,7 +118,7 @@ function attributeName(c) {
   } else if (c == "=") {
     return beforeAttributeValue;
   } else if (c == "\u0000") {
-  } else if (c == '"' || c == "'" || c == "<") {
+  } else if (c == '\"' || c == "\'" || c == "<") {
   } else {
     currentAttribute.name += c;
     return attributeName;
@@ -114,9 +128,9 @@ function attributeName(c) {
 function beforeAttributeValue(c) {
   if (c.match(/^[\t\n\f ]$/) || c == "/" || c == ">" || c == EOF) {
     return beforeAttributeValue;
-  } else if (c == '"') {
+  } else if (c == '\"') {
     return doubleQuotedAttributeValue;
-  } else if (c == "'") {
+  } else if (c == "\'") {
     return singleQuotedAttributeValue;
   } else if (c == ">") {
   } else {
@@ -175,7 +189,7 @@ function UnquotedAttributeValue(c) {
     emit(currentToken);
     return data;
   } else if (c == "\u0000") {
-  } else if (c == '"' || c == "'" || c == "<" || c == "=" || c == "`") {
+  } else if (c == '\"' || c == "\'" || c == "<" || c == "=" || c == "`") {
   } else if (c == EOF) {
   } else {
     currentAttribute.value += c;
@@ -186,6 +200,7 @@ function UnquotedAttributeValue(c) {
 function selfClosingStartTag(c) {
   if (c == ">") {
     currentToken.isSelfClosing = true;
+    emit(currentToken);
     return data;
   } else if (c == "EOF") {
   } else {
@@ -220,4 +235,5 @@ module.exports.parseHTML = (html) => {
     state = state(c);
   }
   state = state(EOF);
+  return stack[0]
 };

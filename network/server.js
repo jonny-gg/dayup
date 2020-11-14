@@ -11,12 +11,18 @@ const server = http.createServer((req, res) => {
   res.writeHeader(200, { "Content-Type": "text/plain" });
   res.end(`<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+body div $myid{
+  width: 100px;
+  background-color:#ff5000;
+}
+  </style>
+  <meta charset="UTF-8"></meta>
+  <meta name="viewport" content="width=device-width"></meta>
   <title>Document</title>
 </head>
 <body>
-  <h1>hello world</h1>
+<span>123123</span>
 </body>
 </html>
   `);

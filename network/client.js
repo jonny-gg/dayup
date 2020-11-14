@@ -249,4 +249,5 @@ void (async function () {
   let response = await request.send();
   // console.log(response.body, "123123")
   let dom = parser.parseHTML(response.body);
+  console.log(dom)
 })();
