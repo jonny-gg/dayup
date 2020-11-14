@@ -2,16 +2,16 @@
  * 简易浏览器客户端
  */
 
-
 /**
  * 头部格式
- * POST / HTTP/1.1 
+ * POST / HTTP/1.1
  * Host: 127.0.0.1
  * Content-Type: application/x-www-form-urlencoded
- * 
+ *
  * name=jonny
  */
 const net = require("net");
+const parser = require("./parser")
 class Request {
   // method + url + port + path
   // body k:v
@@ -81,11 +81,9 @@ ${this.bodyText}`;
          */
         parser.receive(data.toString());
         if (parser.isFinished) {
-          console.log(parser.response);
+          // return parser.response
+          resolve(parser.response);
         }
-        // console.log(parser.statusLine);
-        // console.log(parser.headers);
-        // resolve(data.toString());
         connection.end();
       });
       // connection.on("end", () => {
@@ -210,8 +208,9 @@ class TrunkedBodyParser {
         }
         this.current = this.WAITING_LENGTH_LINE_END;
       } else {
-        this.length *= 10;
-        this.length += char.charCodeAt(0) - "0".charCodeAt(0);
+        // 如果是10进制的话，发长一点的html就会有问题, 所以采用16进制
+        this.length *= 16;
+        this.length += parseInt(char, 16);
       }
     } else if (this.current === this.WAITING_LENGTH_LINE_END) {
       if (char === "\n") {
@@ -248,5 +247,6 @@ void (async function () {
     },
   });
   let response = await request.send();
-  console.log(response);
+  // console.log(response.body, "123123")
+  let dom = parser.parseHTML(response.body);
 })();

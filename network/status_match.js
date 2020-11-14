@@ -60,3 +60,9 @@ function foundB2(c) {
 }
 
 console.log(match("abababx"));
+
+// pattern模式的状态机
+// matchPattern("ababx", "i am ababx! hhhh!")
+function matchPattern(pattern, string) {
+  
+}
