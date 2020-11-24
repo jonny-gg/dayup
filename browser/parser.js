@@ -9,7 +9,7 @@ let stack = [{ type: "document", children: [] }];
 let rules = [];
 
 /**
- * 校验样式选择器
+ * 简单选择和符合选择器的匹配
  * @param {element} element 
  * @param {选择器} selector 
  */
@@ -31,6 +31,10 @@ const match = (element, selector) => {
   }
 };
 
+/**
+ * 解析css
+ * @param {element} element 
+ */
 const computeCss = (element) => {
   console.log(rules);
   // 获取父元素序列
