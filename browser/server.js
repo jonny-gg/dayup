@@ -12,9 +12,13 @@ const server = http.createServer((req, res) => {
   res.end(`<html lang="en">
 <head>
   <style>
-body div $myid{
+body div #myid{
   width: 100px;
   background-color:#ff5000;
+}
+body div img {
+  width:30px;
+  background-color: #ff1111;
 }
   </style>
   <meta charset="UTF-8"></meta>
@@ -22,7 +26,10 @@ body div $myid{
   <title>Document</title>
 </head>
 <body>
-<span>123123</span>
+  <div>
+    <img id="myid"/>
+    <img/>
+  </div>
 </body>
 </html>
   `);
